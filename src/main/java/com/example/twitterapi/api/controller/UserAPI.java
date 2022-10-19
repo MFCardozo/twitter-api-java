@@ -21,7 +21,10 @@ public class UserAPI {
 
     @GetMapping("/last_tweets/{user}")
     public String hello(@PathVariable String user) throws IOException {
-        HttpGet getTestTw = new HttpGet(CommandUrl.BASE_URL + "/tweets/search/recent?query=from:twitterdev");
+        HttpGet usersTw = new HttpGet((String.format(CommandUrl.SEARCH_USERS, user)));
+        String userTwResp = command.executeHttpMethod(usersTw);
+        HttpGet getTestTw = new HttpGet(String.format(CommandUrl.USER_TWEETS, user) + "?max_results=10");
+//        {"data":[{"id":"169686021","name":"ye","username":"kanyewest"}]}
         String getMenuDataResponse = command.executeHttpMethod(getTestTw);
         // TODO: implementar api
         return getMenuDataResponse;
