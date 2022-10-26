@@ -1,16 +1,19 @@
 package com.example.twitterapi.api.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import com.example.twitterapi.api.services.HashtagService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/hashtag")
 public class HashtagAPI {
+    private final HashtagService hashtagService;
 
-    @GetMapping("/latest_trending")
-    public String hello(@RequestParam(value = "name", defaultValue = "World") String name) {
-        return String.format("Hello %s!", name);
+    @Autowired
+    public HashtagAPI(HashtagService hashtagService) {
+        this.hashtagService = hashtagService;
     }
+
+
 }
