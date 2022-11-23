@@ -5,12 +5,10 @@ import com.example.twitterapi.api.services.UserService;
 import org.codehaus.jettison.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -41,6 +39,21 @@ public class UserAPI {
     @GetMapping("/mentions/{user}")
     public ResponseEntity<ApiResponse> lastMentions(@PathVariable String user) throws IOException, JSONException {
         return userService.getLastMentions(user);
+    }
+
+    @PostMapping("/save")
+    public ResponseEntity<ApiResponse> save(@RequestBody Map<String, String> userMap) throws IOException {
+        return userService.save(userMap);
+    }
+
+    @GetMapping("/get_users_order_followers")
+    public ResponseEntity<ApiResponse> getUsersOrderFollowers() {
+        return userService.getUsersOrderFollowers();
+    }
+
+    @GetMapping("/get_users_order_name")
+    public ResponseEntity<ApiResponse> getUsersOrderName() {
+        return userService.getUsersOrderName();
     }
 }
 

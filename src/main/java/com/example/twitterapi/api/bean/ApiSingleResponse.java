@@ -1,8 +1,8 @@
 package com.example.twitterapi.api.bean;
 
-public class ApiError extends ApiData {
+public class ApiSingleResponse extends ApiData {
     private String message;
-    public ApiError(String message) {
+    public ApiSingleResponse(String message) {
         super();
         this.message = message;
     }
