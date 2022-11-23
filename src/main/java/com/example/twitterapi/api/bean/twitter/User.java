@@ -1,9 +1,20 @@
 package com.example.twitterapi.api.bean.twitter;
 
-public class User {
+import com.example.twitterapi.api.bean.ApiData;
+import com.google.gson.annotations.SerializedName;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document("user")
+public class User extends ApiData {
+
+    @Id
     private String id;
     private String name;
     private String username;
+
+    @SerializedName("public_metrics")
+    private PublicMetrics publicMetrics;
 
     public String getId() {
         return id;
@@ -27,5 +38,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public PublicMetrics getPublicMetrics() {
+        return publicMetrics;
+    }
+
+    public void setPublicMetrics(PublicMetrics publicMetrics) {
+        this.publicMetrics = publicMetrics;
     }
 }

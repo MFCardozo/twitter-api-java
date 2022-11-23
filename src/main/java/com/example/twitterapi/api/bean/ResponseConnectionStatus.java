@@ -6,8 +6,7 @@ public class ResponseConnectionStatus {
     }
 
     private Boolean backendConnection;
-    // TODO: implementar conexion BD
-//    private Boolean dataBaseConnection;
+    private Boolean dataBaseConnection;
     private String backendVersion;
 
     public String getBackendVersion() {
@@ -24,5 +23,13 @@ public class ResponseConnectionStatus {
 
     public void setBackendConnection(Boolean status) {
         this.backendConnection = status;
+    }
+
+    public Boolean getDataBaseConnection() {
+        return dataBaseConnection;
+    }
+
+    public void setDataBaseConnection(Boolean dataBaseConnection) {
+        this.dataBaseConnection = dataBaseConnection;
     }
 }

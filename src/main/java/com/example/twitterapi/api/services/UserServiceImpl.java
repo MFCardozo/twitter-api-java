@@ -5,6 +5,7 @@ import com.example.twitterapi.api.bean.twitter.ErrorResponseUser;
 import com.example.twitterapi.api.bean.twitter.User;
 import com.example.twitterapi.api.command.Command;
 import com.example.twitterapi.api.command.CommandUrl;
+import com.example.twitterapi.api.repository.UserRepository;
 import com.google.gson.Gson;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -19,20 +20,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import static com.example.twitterapi.api.helper.ResponseUtils.API_RESPONSE_BAD_REQUEST;
+import static com.example.twitterapi.api.helper.ResponseUtils.DEFAULT_ERROR_RESPONSE;
 import static org.springframework.http.HttpStatus.*;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final Command command;
-    public static final ResponseEntity<ApiResponse> DEFAULT_ERROR_RESPONSE = new ResponseEntity<>(
-            new ApiResponse(false, Collections.singletonList(new ApiError("Error inesperado.")),
-                    HttpStatus.SC_INTERNAL_SERVER_ERROR), INTERNAL_SERVER_ERROR);
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(Command command) {
+    public UserServiceImpl(Command command, UserRepository userRepository) {
         this.command = command;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -140,6 +143,47 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(new ApiResponse(true, apiRetweetedResponseList, HttpStatus.SC_OK), OK);
     }
 
+
+    @Override
+    public ResponseEntity<ApiResponse> save(Map<String, String> userMap) throws IOException {
+
+        String user = userMap.getOrDefault("user", "");
+        if (user.isEmpty()) {
+            return API_RESPONSE_BAD_REQUEST;
+        }
+        String url = String.format(CommandUrl.SEARCH_USERS, user) + "?user.fields=public_metrics";
+        HttpGet usersTw = new HttpGet(url);
+        String userTwResp = command.executeHttpMethod(usersTw);
+        JSONObject twUserJson;
+        try {
+            twUserJson = new JSONObject(userTwResp);
+            ResponseEntity<ApiResponse> checkUserErrors = checkUserErrors(twUserJson, user);
+            if (checkUserErrors != null) {
+                return checkUserErrors;
+            }
+            User userTw = new Gson().fromJson(twUserJson.getString("data"), User.class);
+            userRepository.findOneByUsername(userTw.getUsername()).ifPresent(userObj -> userTw.setId(userObj.getId()));
+            userRepository.save(userTw);
+            return new ResponseEntity<>(new ApiResponse(true, Collections.singletonList(new ApiSingleResponse("User Guardado.")),
+                    HttpStatus.SC_OK), OK);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return DEFAULT_ERROR_RESPONSE;
+        }
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getUsersOrderFollowers() {
+        List <ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByPublicMetricsDesc());
+        return new ResponseEntity<>(new ApiResponse(true, apiData , HttpStatus.SC_OK), OK);
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> getUsersOrderName() {
+        List <ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByName());
+        return new ResponseEntity<>(new ApiResponse(true, apiData, HttpStatus.SC_OK), OK);
+    }
+
     private ResponseEntity<ApiResponse> checkUserErrors(JSONObject twUserJson, String user) {
         try {
 
@@ -148,7 +192,7 @@ public class UserServiceImpl implements UserService {
                 ErrorResponseUser errorResponseUser = new Gson().fromJson(errorsJsonArray.getString(0), ErrorResponseUser.class);
                 if (errorResponseUser.getTitle().equalsIgnoreCase("Not Found Error")) {
                     ApiResponse apiResponse = new ApiResponse(false,
-                            Collections.singletonList(new ApiError(String.format("Usuario %s no encontrado.", user))),
+                            Collections.singletonList(new ApiSingleResponse(String.format("Usuario %s no encontrado.", user))),
                             HttpStatus.SC_NOT_FOUND);
                     return new ResponseEntity<>(apiResponse, NOT_FOUND);
                 } else {
