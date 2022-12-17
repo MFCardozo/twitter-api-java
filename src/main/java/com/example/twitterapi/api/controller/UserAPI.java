@@ -55,5 +55,10 @@ public class UserAPI {
     public ResponseEntity<ApiResponse> getUsersOrderName() {
         return userService.getUsersOrderName();
     }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteUsername(@RequestBody Map<String, String> userMap) {
+        return userService.delete(userMap);
+    }
 }
 

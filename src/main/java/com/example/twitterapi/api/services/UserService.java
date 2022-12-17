@@ -2,6 +2,7 @@ package com.example.twitterapi.api.services;
 
 import com.example.twitterapi.api.bean.ApiResponse;
 import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
@@ -21,4 +22,8 @@ public interface UserService {
     ResponseEntity<ApiResponse> getUsersOrderFollowers();
 
     ResponseEntity<ApiResponse> getUsersOrderName();
+
+    ResponseEntity<ApiResponse> checkUserErrors(JSONObject twUserJson, String user);
+
+    ResponseEntity<ApiResponse> delete(Map<String, String> userMap);
 }

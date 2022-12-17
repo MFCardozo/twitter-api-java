@@ -24,7 +24,8 @@ import java.util.Map;
 
 import static com.example.twitterapi.api.helper.ResponseUtils.API_RESPONSE_BAD_REQUEST;
 import static com.example.twitterapi.api.helper.ResponseUtils.DEFAULT_ERROR_RESPONSE;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -174,17 +175,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<ApiResponse> getUsersOrderFollowers() {
-        List <ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByPublicMetricsDesc());
-        return new ResponseEntity<>(new ApiResponse(true, apiData , HttpStatus.SC_OK), OK);
+        List<ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByPublicMetricsDesc());
+        return new ResponseEntity<>(new ApiResponse(true, apiData, HttpStatus.SC_OK), OK);
     }
 
     @Override
     public ResponseEntity<ApiResponse> getUsersOrderName() {
-        List <ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByName());
+        List<ApiData> apiData = new ArrayList<>(userRepository.findAllByOrderByName());
         return new ResponseEntity<>(new ApiResponse(true, apiData, HttpStatus.SC_OK), OK);
     }
 
-    private ResponseEntity<ApiResponse> checkUserErrors(JSONObject twUserJson, String user) {
+    @Override
+    public ResponseEntity<ApiResponse> checkUserErrors(JSONObject twUserJson, String user) {
         try {
 
             if (twUserJson.has("errors")) {
@@ -206,6 +208,22 @@ public class UserServiceImpl implements UserService {
         }
 
         return null;
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> delete(Map<String, String> userMap) {
+        String username = userMap.getOrDefault("user", "");
+        if (username.isEmpty()) {
+            return API_RESPONSE_BAD_REQUEST;
+        }
+        User user = userRepository.findOneByUsername(username).orElse(null);
+        if (user == null) {
+            return new ResponseEntity<>(new ApiResponse(false, Collections.singletonList(new ApiSingleResponse("User No encontrado.")),
+                    HttpStatus.SC_NOT_FOUND), NOT_FOUND);
+        }
+        userRepository.delete(user);
+        return new ResponseEntity<>(new ApiResponse(true, Collections.singletonList(new ApiSingleResponse("User Eliminado.")),
+                HttpStatus.SC_OK), OK);
     }
 }
 
