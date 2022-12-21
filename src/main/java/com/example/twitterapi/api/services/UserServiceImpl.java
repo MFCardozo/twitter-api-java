@@ -164,6 +164,13 @@ public class UserServiceImpl implements UserService {
             }
             User userTw = new Gson().fromJson(twUserJson.getString("data"), User.class);
             userRepository.findOneByUsername(userTw.getUsername()).ifPresent(userObj -> userTw.setId(userObj.getId()));
+            boolean tieneAudio = Boolean.parseBoolean(userMap.getOrDefault("hasAudio", "false"));
+            int minimoAporte = Integer.parseInt(userMap.getOrDefault("amount", "0"));
+            String descripcion = userMap.getOrDefault("description", "");
+
+            userTw.setTieneAudio(tieneAudio);
+            userTw.setMinimoAporte(minimoAporte);
+            userTw.setDescripcion(descripcion);
             userRepository.save(userTw);
             return new ResponseEntity<>(new ApiResponse(true, Collections.singletonList(new ApiSingleResponse("User Guardado.")),
                     HttpStatus.SC_OK), OK);

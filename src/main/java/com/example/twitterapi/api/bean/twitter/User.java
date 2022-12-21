@@ -16,6 +16,10 @@ public class User extends ApiData {
     @SerializedName("public_metrics")
     private PublicMetrics publicMetrics;
 
+    private boolean tieneAudio;
+    private int minimoAporte;
+    private String descripcion;
+
     public String getId() {
         return id;
     }
@@ -46,5 +50,29 @@ public class User extends ApiData {
 
     public void setPublicMetrics(PublicMetrics publicMetrics) {
         this.publicMetrics = publicMetrics;
+    }
+
+    public boolean isTieneAudio() {
+        return tieneAudio;
+    }
+
+    public void setTieneAudio(boolean tieneAudio) {
+        this.tieneAudio = tieneAudio;
+    }
+
+    public int getMinimoAporte() {
+        return minimoAporte;
+    }
+
+    public void setMinimoAporte(int minimoAporte) {
+        this.minimoAporte = minimoAporte;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }
